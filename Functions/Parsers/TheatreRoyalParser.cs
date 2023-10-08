@@ -15,13 +15,18 @@ public class TheatreRoyalParser
 {
     [FunctionName("Parser_TheatreRoyal")]
     public void Run(
-        [BlobTrigger("scrapes/theatre_royal/raw.json")] string myBlob,
-        [Blob("scrapes/theatre_royal/latest.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
+        [BlobTrigger("whatson/scrapes/theatre_royal/raw.json")] string myBlob,
+        [Blob("whatson/scrapes/theatre_royal/latest.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
          ILogger log)
     {
         var events = Parse(JsonConvert.DeserializeObject<RawScraperDto>(myBlob.ToString()));
+        var model = new VenueEventsModel
+        {
+            Venue = Venue.TheatreRoyal,
+            Events = events
+        };
         rawStream.Write(System.Text.Encoding.UTF8.GetBytes(
-            JsonConvert.SerializeObject(events, Formatting.Indented)));
+            JsonConvert.SerializeObject(model, Formatting.Indented)));
     }
     private IEnumerable<EventModel> Parse(RawScraperDto rawScraperDto)
     {
