@@ -18,7 +18,7 @@ public class TheatreRoyalScraper
     [FunctionName("Scraper_TheatreRoyal_web")]
     public async Task<ActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "scrape/tr")] HttpRequest req,
-        [Blob("whatson/scrapes/theatre_royal/raw.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
+        [Blob($"whatson/scrapes/{nameof(Venue.TheatreRoyal)}/raw.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
         ILogger log)
     {
         var dto = await GetData();

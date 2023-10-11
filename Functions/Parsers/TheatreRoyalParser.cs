@@ -15,8 +15,8 @@ public class TheatreRoyalParser
 {
     [FunctionName("Parser_TheatreRoyal")]
     public void Run(
-        [BlobTrigger("whatson/scrapes/theatre_royal/raw.json")] string myBlob,
-        [Blob("whatson/scrapes/theatre_royal/latest.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
+        [BlobTrigger($"whatson/scrapes/{nameof(Venue.TheatreRoyal)}/raw.json")] string myBlob,
+        [Blob($"whatson/scrapes/{nameof(Venue.TheatreRoyal)}/latest.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
          ILogger log)
     {
         var events = Parse(JsonConvert.DeserializeObject<RawScraperDto>(myBlob.ToString()));
@@ -37,12 +37,12 @@ public class TheatreRoyalParser
         {
             Venue = Venue.TheatreRoyal,
             Name = x.Title,
-            Date = ParseFirstDate(x.SalePeriod) ?? DateTime.MinValue
+            Date = ParseFirstDate(x.SalePeriod) ?? DateTimeOffset.MinValue
         });
     }
 
 
-    public static DateTime? ParseFirstDate(string input)
+    public static DateTimeOffset? ParseFirstDate(string input)
     {
         string[] formats = { "ddd d MMM yyyy", "ddd d MMM - ddd d MMM yyyy" };
 
@@ -51,7 +51,9 @@ public class TheatreRoyalParser
         {
             if (DateTime.TryParseExact(dateString.Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
             {
-                return result;
+                var d = result;
+                DateTime.SpecifyKind(d, DateTimeKind.Utc);
+                return d;
             }
         }
 
