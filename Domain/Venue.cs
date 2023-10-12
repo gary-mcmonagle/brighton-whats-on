@@ -2,5 +2,6 @@ namespace Domain;
 
 public enum Venue
 {
-    TheatreRoyal
+    TheatreRoyal,
+    BrightonDome,
 }
