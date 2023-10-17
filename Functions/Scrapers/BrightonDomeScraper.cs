@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Data.Tables;
 using Domain;
+using Functions.Extensions;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +20,12 @@ public class BrightonDomeScraper
     [FunctionName("Scraper_BrightonDome_web")]
     public async Task<ActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "scrape/bd")] HttpRequest req,
+            [Table("events")] TableClient tableClient,
+
         [Blob($"whatson/scrapes/{nameof(Venue.BrightonDome)}/raw.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
         ILogger log)
     {
+        tableClient.CreateIfNotExists();
         var dto = await GetData();
         rawStream.Write(System.Text.Encoding.UTF8.GetBytes(
             JsonConvert.SerializeObject(dto, Formatting.Indented)));
@@ -41,8 +46,8 @@ public class BrightonDomeScraper
         {
             return new
             {
-                Title = section.SelectSingleNode("div[2]/div[1]/hgroup/h1").InnerText,
-                Dates = section.SelectSingleNode("div[2]/div[1]/hgroup/h2/dd[1]").InnerText,
+                Title = section.SelectSingleNode("div[2]/div[1]/hgroup/h1").InnerText.RemoveDodgyChars(),
+                Dates = section.SelectSingleNode("div[2]/div[1]/hgroup/h2/dd[1]").InnerText.RemoveDodgyChars(),
             };
         });
         return new RawScraperDto

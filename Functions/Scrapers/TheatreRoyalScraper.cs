@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Data.Tables;
 using Domain;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +19,8 @@ public class TheatreRoyalScraper
     [FunctionName("Scraper_TheatreRoyal_web")]
     public async Task<ActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "scrape/tr")] HttpRequest req,
+                    [Table("events")] TableClient tableClient,
+
         [Blob($"whatson/scrapes/{nameof(Venue.TheatreRoyal)}/raw.json", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream rawStream,
         ILogger log)
     {

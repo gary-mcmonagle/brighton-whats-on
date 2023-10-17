@@ -26,22 +26,20 @@ public class ChangeMonitor
         var existingIds = new List<string>();
         await foreach (var entity in queryResults)
         {
-            existingIds.Add(entity.RowKey);
+            existingIds.Add(entity.EventId);
         }
         var woevents = JsonConvert.DeserializeObject<VenueEventsModel>(latestJson).Events;
         foreach (var woevent in woevents)
         {
-            var partitionKey = "woevent";
-            var rowkey = $"{woevent.Venue}-{woevent.Name}";
-            if (!existingIds.Contains(rowkey))
+            var strongEntity = new EventTableModel(woevent)
+            {
+                PartitionKey = "woevent",
+                RowKey = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+            };
+            if (!existingIds.Contains(strongEntity.EventId))
             {
                 log.LogInformation($"New event found: {woevent.Name}");
-                var strongEntity = new EventTableModel(woevent)
-                {
-                    PartitionKey = partitionKey,
-                    RowKey = rowkey,
-                    Timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
-                };
                 tableClient.UpsertEntity(strongEntity);
             }
         }

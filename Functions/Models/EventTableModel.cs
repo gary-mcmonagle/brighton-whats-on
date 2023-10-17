@@ -20,6 +20,8 @@ public record EventTableModel : EventModel, ITableEntity
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
+
+    public string EventId => $"{Venue}-{Name}";
     public bool Alerted { get; set; } = false;
     public bool Remind { get; set; } = false;
 }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Domain;
+using Functions.Extensions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -36,7 +37,7 @@ public class TheatreRoyalParser
         return data.Hub.VenueHubData.ShowCards.Select(x => new EventModel
         {
             Venue = Venue.TheatreRoyal,
-            Name = x.Title,
+            Name = x.Title.RemoveDodgyChars(),
             Date = ParseFirstDate(x.SalePeriod) ?? DateTimeOffset.MinValue
         });
     }
