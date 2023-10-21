@@ -24,13 +24,6 @@ public class SendEmail
         _emailService = emailService;
     }
 
-    [FunctionName("SendEmail_Timer")]
-    public async Task SendEmailTimer([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log, [Table("events")] TableClient tableClient
-)
-    {
-        await SendEmailAsync(tableClient);
-    }
-
     [FunctionName("SendEmail_Http")]
     public async Task<ActionResult> SendEmailHttp(
     [HttpTrigger(AuthorizationLevel.Function, "post", Route = "sendEmail")] HttpRequest req, [Table("events")] TableClient tableClient,
