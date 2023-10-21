@@ -16,8 +16,12 @@ public class EventSubOrchestrator
         Venue venue = context.GetInput<Venue>();
         var venueName = venue.convertToString();
 
+        var retryOptions = new RetryOptions(
+            firstRetryInterval: TimeSpan.FromSeconds(5),
+            maxNumberOfAttempts: 3);
+
         var outputs = new List<string>();
-        var scrape = await context.CallActivityAsync<RawScraperDto>($"{venueName}_ScraperActivity", "theatre royal");
+        var scrape = await context.CallActivityWithRetryAsync<RawScraperDto>($"{venueName}_ScraperActivity", retryOptions, "theatre royal");
         var parse = await context.CallActivityAsync<List<EventModel>>($"{venueName}_ParserActivity", scrape);
         await context.CallActivityAsync("ChangeLoggerActivity", new ChangeLoggerParams(parse, venueName));
         return outputs;
