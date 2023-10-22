@@ -19,7 +19,5 @@ public record EventTableModel : EventModel, ITableEntity
     public string RowKey { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
-    public Guid Id { get; set; } = Guid.NewGuid();
-
     public string EventId => $"{Venue}-{Name}";
 }

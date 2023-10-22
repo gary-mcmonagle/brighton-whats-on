@@ -19,6 +19,8 @@ public class EmailService : IEmailService
                 <ul>
                     <li>{{Name}}</li>
                     <li>{{Venue}}</li>
+                    <li>{{Date}}</li>
+                    <li><a href=""{{functionRoot}}/{{id}}"">Google</a></li>
                 </ul>
                 {{/each}}
             </div>
@@ -27,6 +29,7 @@ public class EmailService : IEmailService
 
         var data = new
         {
+            functionRoot = Environment.GetEnvironmentVariable("FUNCTION_ROOT_URL"),
             title = "Event updates",
             events = email.Events
         };

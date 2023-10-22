@@ -4,9 +4,9 @@ namespace Email;
 
 public static class AddService
 {
-    public static IServiceCollection AddEmailService(this IServiceCollection services)
+    public static IServiceCollection AddEmailService(this IServiceCollection services, string rootUrl)
     {
-        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IEmailService>(new EmailService());
         return services;
     }
 }
