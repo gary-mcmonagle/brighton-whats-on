@@ -4,4 +4,6 @@ public enum Venue
 {
     TheatreRoyal,
     BrightonDome,
+
+    HopeAndRuin
 }

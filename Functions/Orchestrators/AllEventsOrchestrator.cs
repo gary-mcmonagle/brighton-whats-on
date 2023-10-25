@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -17,7 +18,10 @@ public class AllEventsOrchestrator
     public async Task<List<string>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
     {
         var outputs = new List<string>();
-        var tasks = new List<Venue> { Venue.TheatreRoyal, Venue.BrightonDome }.Select(x => context.CallSubOrchestratorAsync("EventSubOrchestrator", x));
+        string onlyVenue = context.GetInput<string>();
+        var gotOnly = Enum.TryParse<Venue>(onlyVenue, out var venue);
+        var venues = gotOnly ? new List<Venue> { venue } : Enum.GetValues<Venue>().ToList();
+        var tasks = venues.Select(x => context.CallSubOrchestratorAsync("EventSubOrchestrator", x));
         await Task.WhenAll(tasks);
         return outputs;
     }
@@ -28,8 +32,9 @@ public class AllEventsOrchestrator
     [DurableClient] IDurableOrchestrationClient starter,
     ILogger log)
     {
-        // Function input comes from the request content.
-        string instanceId = await starter.StartNewAsync("AllEventsOrchestrator", null);
+        var qa = req.RequestUri.ParseQueryString();
+        var only = qa.Get("only") ?? string.Empty;
+        string instanceId = await starter.StartNewAsync("AllEventsOrchestrator", only);
 
         log.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
